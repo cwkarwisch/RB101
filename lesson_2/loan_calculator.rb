@@ -29,7 +29,10 @@ def prompt(message)
   MESSAGES[LANGUAGE][message]
 end
 
-puts prompt(:welcome)
+# function to space out prompts
+def space_prompts
+  puts ""
+end 
 
 # functions to validate inputs from the user
 
@@ -81,6 +84,7 @@ def ask_for_loan_amt
     if valid_dollar_amt?(loan_amt)
       return loan_amt.to_f.round(2)
     else
+      space_prompts
       puts prompt(:loan_amt_error)
     end
   end
@@ -94,6 +98,7 @@ def ask_for_annual_rate
     if valid?(annual_rate)
       return annual_rate.to_f
     else
+      space_prompts
       puts prompt(:rate_error)
     end
   end
@@ -107,11 +112,24 @@ def ask_for_loan_duration
     if valid?(loan_duration_in_years)
       return loan_duration_in_years.to_f
     else
+      space_prompts
       puts prompt(:duration_error)
     end
   end
 end
 
+# Confirm the user's information is correct
+def confirm_input(loan_amt, annual_rate, loan_duration_in_years)
+  puts prompt(:confirmation).sub('{loan_amt}', add_commas(loan_amt.to_s))\
+  .sub('{annual_rate}', annual_rate.to_s)\
+  .sub('{loan_duration}', loan_duration_in_years.to_s)
+  confirmation = gets.chomp
+end 
+
+# clear the terminal when program begins
+system "clear"
+space_prompts
+puts prompt(:welcome)
 loan_amt = 0
 annual_rate = 0
 loan_duration_in_years = 0
@@ -119,15 +137,16 @@ loan_duration_in_years = 0
 # main loop
 loop do
   # get loan information from user
+  space_prompts
   loan_amt = ask_for_loan_amt
+  space_prompts
   annual_rate = ask_for_annual_rate
+  space_prompts
   loan_duration_in_years = ask_for_loan_duration
 
   # Confirm the user's information is correct
-  puts prompt(:confirmation).sub('{loan_amt}', add_commas(loan_amt.to_s))\
-    .sub('{annual_rate}', (annual_rate).to_s)\
-    .sub('{loan_duration}', loan_duration_in_years.to_s)
-  confirmation = gets.chomp
+  space_prompts
+  confirmation = confirm_input(loan_amt, annual_rate, loan_duration_in_years)
   break if confirmation.downcase.start_with?('y')
 end
 
@@ -139,5 +158,7 @@ loan_duration_in_months = loan_duration_in_years * 12
 # calculate and display the monthly payment to the user
 monthly_payment = loan_amt * (monthly_rate / (1 - (1 + monthly_rate)**\
   (-loan_duration_in_months)))
+space_prompts
 puts prompt(:monthly_payment).sub('{monthly_payment}',
                                   add_commas(monthly_payment.round(2).to_s))
+space_prompts
