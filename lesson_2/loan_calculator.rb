@@ -14,7 +14,7 @@ Please try again and make sure to leave off the % sign.",
     duration_error: "=> That doesn't look like a valid loan duration.\
 Please try again.",
     confirmation: "=> It looks like your loan amount is ${loan_amt}, \
-your annual percentage rate is {annual_rate}%, 
+your annual percentage rate is {annual_rate}%,
    and your loan duration is {loan_duration} years.
    Press 'Y' to confirm.",
     monthly_payment: "=> Based on those figures, your monthly payment will be \
@@ -32,7 +32,7 @@ end
 # function to space out prompts
 def space_prompts
   puts ""
-end 
+end
 
 # functions to validate inputs from the user
 
@@ -121,10 +121,10 @@ end
 # Confirm the user's information is correct
 def confirm_input(loan_amt, annual_rate, loan_duration_in_years)
   puts prompt(:confirmation).sub('{loan_amt}', add_commas(loan_amt.to_s))\
-  .sub('{annual_rate}', annual_rate.to_s)\
-  .sub('{loan_duration}', loan_duration_in_years.to_s)
-  confirmation = gets.chomp
-end 
+    .sub('{annual_rate}', annual_rate.to_s)\
+    .sub('{loan_duration}', loan_duration_in_years.to_s)
+  gets.chomp
+end
 
 # clear the terminal when program begins
 system "clear"
