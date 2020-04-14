@@ -89,3 +89,41 @@ puts "tests"
 puts "---------"
 puts string_to_integer('4321') == 4321
 puts string_to_integer('570') == 570
+
+HEX_TO_DECIMAL = {
+  '0' => 0,
+  '1' => 1,
+  '2' => 2,
+  '3' => 3,
+  '4' => 4,
+  '5' => 5,
+  '6' => 6,
+  '7' => 7,
+  '8' => 8,
+  '9' => 9,
+  'A' => 10,
+  'B' => 11,
+  'C' => 12,
+  'D' => 13,
+  'E' => 14,
+  'F' => 15
+}
+
+def hexadecimal_to_integer(str) 
+  counter = str.length
+  multiple = 1
+  number = 0
+
+  while counter > 0
+    num_of_char = HEX_TO_DECIMAL[str[counter - 1].upcase]
+    number += (num_of_char * multiple)
+    multiple *= 16
+    counter -= 1
+  end
+  number
+end 
+
+puts "hex"
+puts "----------"
+
+puts hexadecimal_to_integer('4D9f') == 19871
