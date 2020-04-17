@@ -46,10 +46,6 @@ def prompt(message)
   puts ""
 end
 
-def space_prompts
-  puts ""
-end
-
 def valid_choice?(choice)
   return true if MOVES['permutations'].include?(choice)
   false
