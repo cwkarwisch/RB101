@@ -1,35 +1,49 @@
-VALID_CHOICES = %w(rock paper scissors lizard spock)
+require 'psych'
+MESSAGES = Psych.load_file('rps_messages.yml')
+LANGUAGE = :en
 
-WINNING_HANDS = {
-  rock: ['scissors', 'lizard'],
-  paper: ['rock', 'spock'],
-  scissors: ['paper', 'lizard'],
-  lizard: ['spock', 'paper'],
-  spock: ['rock', 'scissors']
+MOVES = {
+  'choices' => %w(rock paper scissors lizard spock),
+  'permutations' => ['r', 'ro', 'roc', 'rock', 'p', 'pa', 'pap', 'pape',
+                     'paper', 's', 'sc', 'sci', 'scis', 'sciss', 'scisso',
+                     'scissor', 'scissors', 'l', 'li', 'liz', 'liza', 'lizar',
+                     'lizard', 'sp', 'spo', 'spoc', 'spock'],
+  'unclear_response' => 's',
+  'stop_playing' => ['n', 'no'],
+  'valid_s_choices' => ['sc', 'sci', 'scis', 'sciss', 'scisso', 'scissor',
+                        'scissors', 'sp', 'spo', 'spoc', 'spock'],
+  'rock' => {
+    beats: ['scissors', 'lizard'],
+    permutations: ['r', 'ro', 'roc', 'rock']
+  },
+  'paper' => {
+    beats: ['rock', 'spock'],
+    permutations: ['p', 'pa', 'pap', 'pape', 'paper']
+  },
+  'scissors' => {
+    beats: ['paper', 'lizard'],
+    permutations: ['s', 'sc', 'sci', 'scis', 'sciss', 'scisso', 'scissor',
+                   'scissors']
+  },
+  'lizard' => {
+    beats: ['spock', 'paper'],
+    permutations: ['l', 'li', 'liz', 'liza', 'lizar', 'lizard']
+  },
+  'spock' => {
+    beats: ['rock', 'scissors'],
+    permutations: ['s', 'sp', 'spo', 'spoc', 'spock']
+  }
 }
 
-MESSAGES = {
-  welcome: "Welcome to the game.",
-  choose: "Choose one: %{choices}",
-  win: "You won!",
-  loss: "You lost!",
-  tie: "Its a tie!",
-  confirm: "Did you want to pick scissors or spock? (Enter at least either \
-'sc' or 'sp')",
-  invalid: "That doesn't look like a valid choice.",
-  score_update: "The score is now:
-Player: %{player_score}
-Computer: %{computer_score}",
-  player_wins: "You are the Grand Winner!",
-  computer_wins: "The computer is the Grand Winner! Better luck next time.",
-  results: "You chose %{player_choice} and the computer chose \
-%{computer_choice}.",
-  again?: "Do you want to play again?",
-  goodbye: "Thank you for playing! Goodbye."
-}
+VALID_YES_OR_NO = ['yes', 'y', 'no', 'n']
+
+def clear_terminal
+  system('clear') || system('cls')
+end
 
 def prompt(message)
   puts "=> " + message
+  puts ""
 end
 
 def space_prompts
@@ -37,56 +51,46 @@ def space_prompts
 end
 
 def valid_choice?(choice)
-  return true if VALID_CHOICES.include?(choice)
-  return true if choice.downcase.start_with?('r', 'p', 's', 'l')
+  return true if MOVES['permutations'].include?(choice)
   false
 end
 
 def confirm_choice
   confirmed_choice = ''
   loop do
-    space_prompts
-    prompt MESSAGES[:confirm]
+    prompt MESSAGES[LANGUAGE][:confirm]
     confirmed_choice = gets.chomp
-    break if confirmed_choice.downcase.start_with?('sc', 'sp')
-    space_prompts
-    prompt MESSAGES[:invalid]
+    break if MOVES['valid_s_choices'].include?(confirmed_choice)
+    prompt MESSAGES[LANGUAGE][:invalid]
   end
   confirmed_choice
 end
 
 def format_choice(choice)
-  return 'rock' if choice.downcase.start_with?('r')
-  return 'paper' if choice.downcase.start_with?('p')
-  return 'scissors' if choice.downcase.start_with?('sc')
-  return 'lizard' if choice.downcase.start_with?('l')
-  return 'spock' if choice.downcase.start_with?('sp')
+  return 'rock' if MOVES['rock'][:permutations].include?(choice)
+  return 'paper' if MOVES['paper'][:permutations].include?(choice)
+  return 'scissors' if MOVES['scissors'][:permutations].include?(choice)
+  return 'lizard' if MOVES['lizard'][:permutations].include?(choice)
+  return 'spock' if MOVES['spock'][:permutations].include?(choice)
 end
 
 def display_results(player, computer)
-  # check whether the player's move beats the computer's move
-  if WINNING_HANDS[player.to_sym].include?(computer)
-    space_prompts
-    prompt(MESSAGES[:win])
-  # check whether the computer's move beats the player's move
-  elsif WINNING_HANDS[computer.to_sym].include?(player)
-    space_prompts
-    prompt(MESSAGES[:loss])
-  # otherwise there is a tie
+  if MOVES[player][:beats].include?(computer)
+    prompt(MESSAGES[LANGUAGE][:win])
+  elsif MOVES[computer][:beats].include?(player)
+    prompt(MESSAGES[LANGUAGE][:loss])
   else
-    space_prompts
-    prompt(MESSAGES[:tie])
+    prompt(MESSAGES[LANGUAGE][:tie])
   end
 end
 
 def update_score(player, computer, score)
-  if WINNING_HANDS[player.to_sym].include?(computer)
+  if MOVES[player][:beats].include?(computer)
     score[:player] += 1
-  elsif WINNING_HANDS[computer.to_sym].include?(player)
+  elsif MOVES[computer][:beats].include?(player)
     score[:computer] += 1
   end
-  space_prompts
-  prompt format(MESSAGES[:score_update], player_score:
+  prompt format(MESSAGES[LANGUAGE][:score_update], player_score:
                          score[:player], computer_score: score[:computer])
 end
 
@@ -100,20 +104,16 @@ end
 
 def display_grand_winner(score)
   if score[:player] == 5
-    space_prompts
-    prompt MESSAGES[:player_wins]
+    prompt MESSAGES[LANGUAGE][:player_wins]
   elsif score[:computer] == 5
-    space_prompts
-    prompt MESSAGES[:computer_wins]
+    prompt MESSAGES[LANGUAGE][:computer_wins]
   end
 end
 
-# clear the terminal and welcome the player
-system "clear"
-prompt MESSAGES[:welcome]
-space_prompts
+clear_terminal
+prompt MESSAGES[LANGUAGE][:welcome]
+prompt MESSAGES[LANGUAGE][:instructions]
 
-# set each player's score to 0
 scores = {
   player: 0,
   computer: 0
@@ -121,56 +121,49 @@ scores = {
 
 # main loop
 loop do
-  # loop to obtain the player's move
   player_choice = ''
   loop do
-    # display the available choices to the player
-    prompt format(MESSAGES[:choose], choices: VALID_CHOICES.join(', '))
-    player_choice = gets.chomp
+    prompt format(MESSAGES[LANGUAGE][:choose], choices:
+           MOVES['choices'].join(', '))
+    player_choice = gets.chomp.downcase
+    puts ""
 
-    # validate the player's move
     if valid_choice?(player_choice)
-
-      # confirm the player's move if they only entered 's'
-      player_choice = confirm_choice if player_choice.downcase == 's'
-
-      # format the player's move if they entered less than the full word
+      player_choice = confirm_choice if player_choice.downcase ==
+                                        MOVES['unclear_response']
       player_choice = format_choice(player_choice) unless
-        VALID_CHOICES.include?(player_choice)
+        MOVES['choices'].include?(player_choice)
       break
 
-    # let the user know their choice was invalid
     else
-      space_prompts
-      prompt MESSAGES[:invalid]
+      prompt MESSAGES[LANGUAGE][:invalid]
     end
   end
 
-  # set the computer's random choice
-  computer_choice = VALID_CHOICES.sample
-
-  # display each player's move, who won, and update the score
-  space_prompts
-  prompt format(MESSAGES[:results], player_choice:
+  computer_choice = MOVES['choices'].sample
+  prompt format(MESSAGES[LANGUAGE][:results], player_choice:
                 player_choice, computer_choice: computer_choice)
   display_results(player_choice, computer_choice)
   update_score(player_choice, computer_choice, scores)
 
-  # determine if either play has won 5 matches
-  # if so, the game is over
   if grand_winner?(scores)
     display_grand_winner(scores)
     break
   end
 
-  # ask if the user wants to play again
-  space_prompts
-  prompt MESSAGES[:again?]
-  answer = gets.chomp
-  space_prompts
-  break unless answer.downcase.start_with?('y')
+  prompt MESSAGES[LANGUAGE][:again?]
+  answer = ''
+  loop do
+    answer = gets.chomp
+    puts ""
+    if !VALID_YES_OR_NO.include?(answer.downcase)
+      prompt MESSAGES[LANGUAGE][:y_or_n]
+    else
+      break
+    end
+  end
+  break if MOVES['stop_playing'].include?(answer.downcase)
+  clear_terminal
 end
 
-# display farewell message
-prompt MESSAGES[:goodbye]
-space_prompts
+prompt MESSAGES[LANGUAGE][:goodbye]
