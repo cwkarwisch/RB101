@@ -1,12 +1,16 @@
 MESSAGES = {
   en: {
     welcome: "Welcome to Tic-Tac-Toe!",
-    instructions: "To make a move, enter the number that corresponds to the square on the board that you would like to select.
-   Enter '1' for the upper-left square, '2' for the upper-center square, etc. Enter 'key' for a diagram.
-   Your moves will be displayed as 'o' and the computer's moves as 'x'.",
+    instructions: "To make a move, enter the number that corresponds to the \
+square on the board
+   that you would like to select. Enter '1' for the upper-left square,
+   '2' for the upper-center square, etc. Enter 'key' for a diagram.",
+    x_and_o: "Your moves will be displayed as 'o' and the computer's moves \
+as 'x'.",
     move: "Please select a square.
    To see a display of what to enter for possible moves, enter 'key'.",
-    possible_moves: "To see a display of what to enter for possible moves, enter 'key'.",
+    possible_moves: "To see a display of what to enter for possible moves, \
+enter 'key'.",
     invalid_choice: "That doesn't look like a valid choice. Please try again.",
     player_win: "You won! Congratulations!",
     computer_win: "The compuer won. Better luck next time!",
@@ -17,7 +21,7 @@ MESSAGES = {
       yes: ['yes', 'y'],
       no: ['no', 'n']
     },
-    key: "key",
+    key: "key"
   }
 }
 
@@ -44,144 +48,61 @@ def prompt_with_newline(message)
   puts ""
 end
 
-def display_board_with_possble_moves(moves)
-  print " " * 10
-  print " "
-  print "1" if moves[1] == "empty"
+def display_board(moves, possible_moves = false)
+  print " " * 11
+  print "1" if possible_moves && moves[1] == "empty"
+  print " " if moves[1] == "empty" unless possible_moves
   print "o" if moves[1] == "player"
   print "x" if moves[1] == "computer"
-  print " "
-  print "|"
-  print " "
-  print " "
-  print "2" if moves[2] == "empty"
+  print " |  "
+  print "2" if possible_moves && moves[2] == "empty"
+  print " " if moves[2] == "empty" unless possible_moves
   print "o" if moves[2] == "player"
   print "x" if moves[2] == "computer"
-  print " "
-  print "|"
-  print " "
-  print "3" if moves[3] == "empty"
+  print " | "
+  print "3" if possible_moves && moves[3] == "empty"
+  print " " if moves[3] == "empty" unless possible_moves
   print "o" if moves[3] == "player"
   print "x" if moves[3] == "computer"
   puts ""
 
-  print " " * 10
-  print "------------"
+  print " " * 10 + "-" * 12
   puts ""
 
-  print " " * 10
-  print " "
-  print "4" if moves[4] == "empty"
+  print " " * 11
+  print "4" if possible_moves && moves[4] == "empty"
+  print " " if moves[4] == "empty" unless possible_moves
   print "o" if moves[4] == "player"
   print "x" if moves[4] == "computer"
-  print " "
-  print "|"
-  print " "
-  print " "
-  print "5" if moves[5] == "empty"
+  print " |  "
+  print "5" if possible_moves && moves[5] == "empty"
+  print " " if moves[5] == "empty" unless possible_moves
   print "o" if moves[5] == "player"
   print "x" if moves[5] == "computer"
-  print " "
-  print "|"
-  print " "
-  print "6" if moves[6] == "empty"
+  print " | "
+  print "6" if possible_moves && moves[6] == "empty"
+  print " " if moves[6] == "empty" unless possible_moves
   print "o" if moves[6] == "player"
   print "x" if moves[6] == "computer"
   puts ""
 
-  print " " * 10
-  print "------------"
+  print " " * 10 + "-" * 12
+
   puts ""
 
-  print " " * 10
-  print " "
-  print "7" if moves[7] == "empty"
+  print " " * 11
+  print "7" if possible_moves && moves[7] == "empty"
+  print " " if moves[7] == "empty" unless possible_moves
   print "o" if moves[7] == "player"
   print "x" if moves[7] == "computer"
-  print " "
-  print "|"
-  print " "
-  print " "
-  print "8" if moves[8] == "empty"
+  print " |  "
+  print "8" if possible_moves && moves[8] == "empty"
+  print " " if moves[8] == "empty" unless possible_moves
   print "o" if moves[8] == "player"
   print "x" if moves[8] == "computer"
-  print " "
-  print "|"
-  print " "
-  print "9" if moves[9] == "empty"
-  print "o" if moves[9] == "player"
-  print "x" if moves[9] == "computer"
-  puts ""
-
-  print " " * 10
-  puts ""
-end
-
-def display_board(moves)
-  print " " * 10
-  print " "
-  print " " if moves[1] == "empty"
-  print "o" if moves[1] == "player"
-  print "x" if moves[1] == "computer"
-  print " "
-  print "|"
-  print " "
-  print " "
-  print " " if moves[2] == "empty"
-  print "o" if moves[2] == "player"
-  print "x" if moves[2] == "computer"
-  print " "
-  print "|"
-  print " "
-  print " " if moves[3] == "empty"
-  print "o" if moves[3] == "player"
-  print "x" if moves[3] == "computer"
-  puts ""
-
-  print " " * 10
-  print "------------"
-  puts ""
-
-  print " " * 10
-  print " "
-  print " " if moves[4] == "empty"
-  print "o" if moves[4] == "player"
-  print "x" if moves[4] == "computer"
-  print " "
-  print "|"
-  print " "
-  print " "
-  print " " if moves[5] == "empty"
-  print "o" if moves[5] == "player"
-  print "x" if moves[5] == "computer"
-  print " "
-  print "|"
-  print " "
-  print " " if moves[6] == "empty"
-  print "o" if moves[6] == "player"
-  print "x" if moves[6] == "computer"
-  puts ""
-
-  print " " * 10
-  print "------------"
-  puts ""
-
-  print " " * 10
-  print " "
-  print " " if moves[7] == "empty"
-  print "o" if moves[7] == "player"
-  print "x" if moves[7] == "computer"
-  print " "
-  print "|"
-  print " "
-  print " "
-  print " " if moves[8] == "empty"
-  print "o" if moves[8] == "player"
-  print "x" if moves[8] == "computer"
-  print " "
-  print "|"
-  print " "
-  print " " if moves[9] == "empty"
+  print " | "
+  print "9" if possible_moves && moves[9] == "empty"
+  print " " if moves[9] == "empty" unless possible_moves
   print "o" if moves[9] == "player"
   print "x" if moves[9] == "computer"
   puts ""
@@ -197,7 +118,7 @@ def computer_move(moves)
 end
 
 def winner?(moves, player_to_check)
-  player_moves = moves.select {|_, value| value == player_to_check}.keys
+  player_moves = moves.select { |_, value| value == player_to_check }.keys
   WINNING_MOVES.any? do |sub_arr|
     sub_arr.all? do |num|
       player_moves.include?(num)
@@ -251,8 +172,8 @@ loop do
   clear_terminal
   prompt_with_newline(:welcome)
   prompt_with_newline(:instructions)
+  prompt_with_newline(:x_and_o)
   moves_hash = create_clear_board
-  again = false
 
   loop do
     loop do
@@ -261,7 +182,7 @@ loop do
 
       player_choice = gets.chomp
       if MESSAGES[LANGUAGE][:key] == player_choice
-        display_board_with_possble_moves(moves_hash)
+        display_board(moves_hash, true)
         prompt_with_newline(:move)
         player_choice = gets.chomp
       end
