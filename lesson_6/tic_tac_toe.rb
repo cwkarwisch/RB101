@@ -27,6 +27,10 @@ enter 'key'.",
 
 LANGUAGE = :en
 
+EMPTY_MARKER = ' '
+PLAYER_MARKER = 'o'
+COMPUTER_MARKER = 'x'
+
 WINNING_MOVES = [
   [1, 2, 3],
   [4, 5, 6],
@@ -48,75 +52,40 @@ def prompt_with_newline(message)
   puts ""
 end
 
-def display_board(moves, possible_moves = false)
-  print " " * 11
-  print "1" if possible_moves && moves[1] == "empty"
-  print " " if moves[1] == "empty" unless possible_moves
-  print "o" if moves[1] == "player"
-  print "x" if moves[1] == "computer"
-  print " |  "
-  print "2" if possible_moves && moves[2] == "empty"
-  print " " if moves[2] == "empty" unless possible_moves
-  print "o" if moves[2] == "player"
-  print "x" if moves[2] == "computer"
-  print " | "
-  print "3" if possible_moves && moves[3] == "empty"
-  print " " if moves[3] == "empty" unless possible_moves
-  print "o" if moves[3] == "player"
-  print "x" if moves[3] == "computer"
-  puts ""
+#remind player which marker is theirs and which is computers?
 
-  print " " * 10 + "-" * 12
-  puts ""
-
-  print " " * 11
-  print "4" if possible_moves && moves[4] == "empty"
-  print " " if moves[4] == "empty" unless possible_moves
-  print "o" if moves[4] == "player"
-  print "x" if moves[4] == "computer"
-  print " |  "
-  print "5" if possible_moves && moves[5] == "empty"
-  print " " if moves[5] == "empty" unless possible_moves
-  print "o" if moves[5] == "player"
-  print "x" if moves[5] == "computer"
-  print " | "
-  print "6" if possible_moves && moves[6] == "empty"
-  print " " if moves[6] == "empty" unless possible_moves
-  print "o" if moves[6] == "player"
-  print "x" if moves[6] == "computer"
-  puts ""
-
-  print " " * 10 + "-" * 12
-
-  puts ""
-
-  print " " * 11
-  print "7" if possible_moves && moves[7] == "empty"
-  print " " if moves[7] == "empty" unless possible_moves
-  print "o" if moves[7] == "player"
-  print "x" if moves[7] == "computer"
-  print " |  "
-  print "8" if possible_moves && moves[8] == "empty"
-  print " " if moves[8] == "empty" unless possible_moves
-  print "o" if moves[8] == "player"
-  print "x" if moves[8] == "computer"
-  print " | "
-  print "9" if possible_moves && moves[9] == "empty"
-  print " " if moves[9] == "empty" unless possible_moves
-  print "o" if moves[9] == "player"
-  print "x" if moves[9] == "computer"
-  puts ""
-
-  print " " * 10
+def display_board(moves)
+  puts "          #{moves[1]} | #{moves[2]} | #{moves[3]}"
+  puts "          ----------"
+  puts "          #{moves[4]} | #{moves[5]} | #{moves[6]}"
+  puts "          ----------"
+  puts "          #{moves[7]} | #{moves[8]} | #{moves[9]}"
   puts ""
 end
 
-def computer_move(moves)
-  available_choices_array = moves.select { |_, value| value == 'empty' }.keys
-  computer_choice = available_choices_array.sample
-  moves[computer_choice] = 'computer'
+def board_with_possible_moves(moves)
+  possible_moves = {}
+  moves.each do |key, value|
+    possible_moves[key] = if value == EMPTY_MARKER
+                            key.to_s
+                          else
+                            value
+                          end
+  end
+  possible_moves
 end
 
+# abstract out the available choices piece??
+
+def computer_move!(moves)
+  available_choices = moves.select { |_, value| value == EMPTY_MARKER }.keys
+  computer_choice = available_choices.sample
+  moves[computer_choice] = COMPUTER_MARKER
+end
+
+
+# should we have a detect winner method rather than relying on
+# where we are in the loop?
 def winner?(moves, player_to_check)
   player_moves = moves.select { |_, value| value == player_to_check }.keys
   WINNING_MOVES.any? do |sub_arr|
@@ -127,14 +96,14 @@ def winner?(moves, player_to_check)
 end
 
 def tie?(moves)
-  moves.values.include?('empty') ? false : true
+  moves.values.include?(EMPTY_MARKER) ? false : true
 end
 
 def play_again?
   prompt_with_newline(:again?)
   response = ''
   loop do
-    response = gets.chomp
+    response = gets.chomp.downcase
     puts
     if MESSAGES[LANGUAGE][:valid_yes_or_no].values.flatten.include?(response)
       break
@@ -147,25 +116,25 @@ end
 
 def valid_choice?(choice, moves)
   return false unless choice.to_i.to_s == choice
-  (1..9).to_a.include?(choice.to_i) && moves[choice.to_i] == "empty"
+  (1..9).to_a.include?(choice.to_i) && moves[choice.to_i] == EMPTY_MARKER
 end
 
 def create_clear_board
   {
-    1 => "empty",
-    2 => "empty",
-    3 => "empty",
-    4 => "empty",
-    5 => "empty",
-    6 => "empty",
-    7 => "empty",
-    8 => "empty",
-    9 => "empty"
+    1 => EMPTY_MARKER,
+    2 => EMPTY_MARKER,
+    3 => EMPTY_MARKER,
+    4 => EMPTY_MARKER,
+    5 => EMPTY_MARKER,
+    6 => EMPTY_MARKER,
+    7 => EMPTY_MARKER,
+    8 => EMPTY_MARKER,
+    9 => EMPTY_MARKER
   }
 end
 
-def log_player_move(moves, player_move)
-  moves[player_move.to_i] = "player"
+def log_player_move!(moves, player_move)
+  moves[player_move.to_i] = PLAYER_MARKER
 end
 
 loop do
@@ -182,13 +151,13 @@ loop do
 
       player_choice = gets.chomp
       if MESSAGES[LANGUAGE][:key] == player_choice
-        display_board(moves_hash, true)
+        display_board(board_with_possible_moves(moves_hash))
         prompt_with_newline(:move)
         player_choice = gets.chomp
       end
 
       if valid_choice?(player_choice, moves_hash)
-        log_player_move(moves_hash, player_choice)
+        log_player_move!(moves_hash, player_choice)
         break
       else
         puts
@@ -196,7 +165,7 @@ loop do
       end
     end
 
-    if winner?(moves_hash, 'player')
+    if winner?(moves_hash, PLAYER_MARKER)
       clear_terminal
       display_board(moves_hash)
       prompt_with_newline(:player_win)
@@ -210,8 +179,8 @@ loop do
       break
     end
 
-    computer_move(moves_hash)
-    if winner?(moves_hash, 'computer')
+    computer_move!(moves_hash)
+    if winner?(moves_hash, COMPUTER_MARKER)
       clear_terminal
       display_board(moves_hash)
       prompt_with_newline(:computer_win)
