@@ -1,3 +1,7 @@
+EMPTY_MARKER = ' '
+PLAYER_MARKER = 'o'
+COMPUTER_MARKER = 'x'
+
 MESSAGES = {
   en: {
     welcome: "Welcome to Tic-Tac-Toe!",
@@ -5,12 +9,13 @@ MESSAGES = {
 square on the board
    that you would like to select. Enter '1' for the upper-left square,
    '2' for the upper-center square, etc. Enter 'key' for a diagram.",
-    x_and_o: "Your moves will be displayed as 'o' and the computer's moves \
+    x_and_o2: "Your moves will be displayed as 'o' and the computer's moves \
 as 'x'.",
-    move: "Please select a square.
-   To see a display of what to enter for possible moves, enter 'key'.",
-    possible_moves: "To see a display of what to enter for possible moves, \
-enter 'key'.",
+    x_and_o: "Your moves are displayed as 'o' and the
+   computer's moves are displayed as '#{COMPUTER_MARKER}'.",
+    available_moves: "Please select a square.
+   To see a display of what to enter for possible moves, enter 'key'.
+   Currently available moves are %s.",
     invalid_choice: "That doesn't look like a valid choice. Please try again.",
     player_win: "You won! Congratulations!",
     computer_win: "The compuer won. Better luck next time!",
@@ -26,10 +31,6 @@ enter 'key'.",
 }
 
 LANGUAGE = :en
-
-EMPTY_MARKER = ' '
-PLAYER_MARKER = 'o'
-COMPUTER_MARKER = 'x'
 
 WINNING_MOVES = [
   [1, 2, 3],
@@ -48,11 +49,9 @@ end
 
 def prompt_with_newline(message)
   print "=> "
-  puts MESSAGES[LANGUAGE][message]
+  puts message
   puts ""
 end
-
-#remind player which marker is theirs and which is computers?
 
 def display_board(moves)
   puts "          #{moves[1]} | #{moves[2]} | #{moves[3]}"
@@ -76,7 +75,6 @@ def board_with_possible_moves(moves)
 end
 
 # abstract out the available choices piece??
-
 def computer_move!(moves)
   available_choices = moves.select { |_, value| value == EMPTY_MARKER }.keys
   computer_choice = available_choices.sample
@@ -100,7 +98,7 @@ def tie?(moves)
 end
 
 def play_again?
-  prompt_with_newline(:again?)
+  prompt_with_newline(MESSAGES[LANGUAGE][:again?])
   response = ''
   loop do
     response = gets.chomp.downcase
@@ -108,7 +106,7 @@ def play_again?
     if MESSAGES[LANGUAGE][:valid_yes_or_no].values.flatten.include?(response)
       break
     else
-      prompt_with_newline(:invalid_choice)
+      prompt_with_newline(MESSAGES[LANGUAGE][:invalid_choice])
     end
   end
   MESSAGES[LANGUAGE][:valid_yes_or_no][:yes].include?(response) ? true : false
@@ -117,6 +115,11 @@ end
 def valid_choice?(choice, moves)
   return false unless choice.to_i.to_s == choice
   (1..9).to_a.include?(choice.to_i) && moves[choice.to_i] == EMPTY_MARKER
+end
+
+def array_of_available_choices(moves)
+  available = moves.select { |_, value| value == EMPTY_MARKER}
+  available.keys
 end
 
 def create_clear_board
@@ -137,22 +140,43 @@ def log_player_move!(moves, player_move)
   moves[player_move.to_i] = PLAYER_MARKER
 end
 
+def joinor(array, delimiter, joining_word)
+  string = ""
+  counter = 0
+  loop do
+    break if counter == array.size
+    string << joining_word  << " " if counter == array.size - 1
+    string << array[counter].to_s
+    string << delimiter unless counter == array.size - 1
+    counter += 1
+  end
+  string
+end
+
+def welcome_user
+  prompt_with_newline(MESSAGES[LANGUAGE][:welcome])
+  prompt_with_newline(MESSAGES[LANGUAGE][:instructions])
+  prompt_with_newline(MESSAGES[LANGUAGE][:x_and_o])
+end
+
 loop do
   clear_terminal
-  prompt_with_newline(:welcome)
-  prompt_with_newline(:instructions)
-  prompt_with_newline(:x_and_o)
-  moves_hash = create_clear_board
+  welcome_user
+  moves_hash = create_clear_board #rename moves_hash to something cleaner?
 
   loop do
     loop do
       display_board(moves_hash)
-      prompt_with_newline(:move)
+      prompt_with_newline(format(MESSAGES[LANGUAGE][:available_moves],
+                          joinor(array_of_available_choices(moves_hash),
+                          ', ', 'and')))
 
       player_choice = gets.chomp
       if MESSAGES[LANGUAGE][:key] == player_choice
         display_board(board_with_possible_moves(moves_hash))
-        prompt_with_newline(:move)
+        prompt_with_newline(format(MESSAGES[LANGUAGE][:available_moves],
+        joinor(array_of_available_choices(moves_hash),
+        ', ', 'and')))
         player_choice = gets.chomp
       end
 
@@ -161,21 +185,21 @@ loop do
         break
       else
         puts
-        prompt_with_newline(:invalid_choice)
+        prompt_with_newline(MESSAGES[LANGUAGE][:invalid_choice])
       end
     end
 
     if winner?(moves_hash, PLAYER_MARKER)
       clear_terminal
       display_board(moves_hash)
-      prompt_with_newline(:player_win)
+      prompt_with_newline(MESSAGES[LANGUAGE][:player_win])
       break
     end
 
     if tie?(moves_hash)
       clear_terminal
       display_board(moves_hash)
-      prompt_with_newline(:tie)
+      prompt_with_newline(MESSAGES[LANGUAGE][:tie])
       break
     end
 
@@ -183,14 +207,14 @@ loop do
     if winner?(moves_hash, COMPUTER_MARKER)
       clear_terminal
       display_board(moves_hash)
-      prompt_with_newline(:computer_win)
+      prompt_with_newline(MESSAGES[LANGUAGE][:computer_win])
       break
     end
 
     if tie?(moves_hash)
       clear_terminal
       display_board(moves_hash)
-      prompt_with_newline(:tie)
+      prompt_with_newline(MESSAGES[LANGUAGE][:tie])
       break
     end
 
@@ -201,4 +225,4 @@ loop do
   break unless again
 end
 
-prompt_with_newline(:goodbye)
+prompt_with_newline(MESSAGES[LANGUAGE][:goodbye])
