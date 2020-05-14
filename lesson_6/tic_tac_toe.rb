@@ -26,7 +26,10 @@ as 'x'.",
       yes: ['yes', 'y'],
       no: ['no', 'n']
     },
-    key: "key"
+    key: "key",
+    score: "The score is now:
+   Player: %i
+   Computer: %i"
   }
 }
 
@@ -159,6 +162,28 @@ def welcome_user
   prompt_with_newline(MESSAGES[LANGUAGE][:x_and_o])
 end
 
+def create_empty_scoreboard
+  {
+    player: 0,
+    computer: 0
+  }
+end
+
+def update_score!(scoreboard, winner)
+  scoreboard[winner] += 1
+end
+
+def display_scoreboard(scoreboard)
+  prompt_with_newline(format(MESSAGES[LANGUAGE][:score], scoreboard[:player],
+                      scoreboard[:computer]))
+end
+
+def five_wins?(scoreboard)
+  scoreboard[:player] == 5 || scoreboard[:computer] == 5 ? true : false
+end
+
+score = create_empty_scoreboard
+
 loop do
   clear_terminal
   welcome_user
@@ -190,9 +215,12 @@ loop do
     end
 
     if winner?(moves_hash, PLAYER_MARKER)
+      # we do clear terminal and display board a lot, condense into a method??
       clear_terminal
       display_board(moves_hash)
+      update_score!(score, :player)
       prompt_with_newline(MESSAGES[LANGUAGE][:player_win])
+      display_scoreboard(score)
       break
     end
 
@@ -207,7 +235,9 @@ loop do
     if winner?(moves_hash, COMPUTER_MARKER)
       clear_terminal
       display_board(moves_hash)
+      update_score!(score, :computer)
       prompt_with_newline(MESSAGES[LANGUAGE][:computer_win])
+      display_scoreboard(score)
       break
     end
 
@@ -221,6 +251,7 @@ loop do
     clear_terminal
   end
 
+  break if five_wins?(score)
   again = play_again?
   break unless again
 end
