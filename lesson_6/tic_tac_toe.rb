@@ -77,13 +77,111 @@ def board_with_possible_moves(moves)
   possible_moves
 end
 
-# abstract out the available choices piece??
 def computer_move!(moves)
-  available_choices = moves.select { |_, value| value == EMPTY_MARKER }.keys
-  computer_choice = available_choices.sample
+  if computer_first_turn?(moves)
+    ai_opening_move!(moves)
+  elsif winning_move_available?(moves, COMPUTER_MARKER)
+    ai_winning_move!(moves)
+  elsif winning_move_available?(moves, PLAYER_MARKER)
+    ai_defensive_move!(moves)
+  else
+    random_move!(moves)
+  end
+end
+
+def computer_first_turn?(moves)
+  moves.values.count(COMPUTER_MARKER) == 0
+end
+
+def random_move!(moves)
+  available_moves = array_of_available_choices(moves)
+  computer_choice = available_moves.sample
   moves[computer_choice] = COMPUTER_MARKER
 end
 
+def ai_opening_move!(moves)
+  if moves[5] == EMPTY_MARKER
+    moves[5] = COMPUTER_MARKER
+  else
+    computer_choice = array_of_available_corners(moves).sample
+    moves[computer_choice] = COMPUTER_MARKER
+  end
+end
+
+def array_of_available_corners(moves)
+  available = array_of_available_choices(moves)
+  available.delete(2)
+  available.delete(4)
+  available.delete(6)
+  available.delete(8)
+  available
+end
+
+# should be unneeded now
+def ai_winning_move_available?(moves)
+  WINNING_MOVES.each do |sub_arr|
+    computer_count = 0
+    empty_count = 0
+    sub_arr.each do |num|
+      computer_count += 1 if moves[num] == COMPUTER_MARKER
+      empty_count += 1 if moves[num] == EMPTY_MARKER
+    end
+    return true if computer_count == 2 && empty_count == 1
+  end
+  false
+end
+
+def ai_winning_move!(moves)
+  winning_move = find_ai_winning_move(moves)
+  moves[winning_move] = COMPUTER_MARKER
+end
+
+def find_ai_winning_move(moves)
+  WINNING_MOVES.each do |sub_arr|
+    computer_count = 0
+    empty_count = 0
+    winning_move = 0
+    sub_arr.each do |num|
+      computer_count += 1 if moves[num] == COMPUTER_MARKER
+      empty_count += 1 if moves[num] == EMPTY_MARKER
+      winning_move = num if moves[num] == EMPTY_MARKER
+    end
+    return winning_move if computer_count == 2 && empty_count == 1
+  end
+end
+
+def ai_defensive_move!(moves)
+  defensive_move = find_move_to_block(moves)
+  moves[defensive_move] = COMPUTER_MARKER
+end
+
+# can probably condense with find ai winning move
+def find_move_to_block(moves)
+  WINNING_MOVES.each do |sub_arr|
+    player_count = 0
+    empty_count = 0
+    move_to_block = 0
+    sub_arr.each do |num|
+      player_count += 1 if moves[num] == PLAYER_MARKER
+      empty_count += 1 if moves[num] == EMPTY_MARKER
+      move_to_block = num if moves[num] == EMPTY_MARKER
+    end
+    return move_to_block if player_count == 2 && empty_count == 1
+  end
+end
+
+def winning_move_available?(moves, marker_being_checked)
+  WINNING_MOVES.each do |sub_arr|
+    move_count = 0
+    empty_count = 0
+    sub_arr.each do |num|
+      move_count += 1 if moves[num] == marker_being_checked
+      empty_count += 1 if moves[num] == EMPTY_MARKER
+    end
+    return true if move_count == 2 && empty_count == 1
+  end
+  false
+end
 
 # should we have a detect winner method rather than relying on
 # where we are in the loop?
@@ -106,11 +204,8 @@ def play_again?
   loop do
     response = gets.chomp.downcase
     puts
-    if MESSAGES[LANGUAGE][:valid_yes_or_no].values.flatten.include?(response)
-      break
-    else
-      prompt_with_newline(MESSAGES[LANGUAGE][:invalid_choice])
-    end
+    break if MESSAGES[LANGUAGE][:valid_yes_or_no].values.flatten.include?(response)
+    prompt_with_newline(MESSAGES[LANGUAGE][:invalid_choice])
   end
   MESSAGES[LANGUAGE][:valid_yes_or_no][:yes].include?(response) ? true : false
 end
@@ -121,7 +216,7 @@ def valid_choice?(choice, moves)
 end
 
 def array_of_available_choices(moves)
-  available = moves.select { |_, value| value == EMPTY_MARKER}
+  available = moves.select { |_, value| value == EMPTY_MARKER }
   available.keys
 end
 
@@ -148,7 +243,7 @@ def joinor(array, delimiter, joining_word)
   counter = 0
   loop do
     break if counter == array.size
-    string << joining_word  << " " if counter == array.size - 1
+    string << joining_word << " " if counter == array.size - 1
     string << array[counter].to_s
     string << delimiter unless counter == array.size - 1
     counter += 1
@@ -175,7 +270,7 @@ end
 
 def display_scoreboard(scoreboard)
   prompt_with_newline(format(MESSAGES[LANGUAGE][:score], scoreboard[:player],
-                      scoreboard[:computer]))
+                             scoreboard[:computer]))
 end
 
 def five_wins?(scoreboard)
@@ -187,21 +282,22 @@ score = create_empty_scoreboard
 loop do
   clear_terminal
   welcome_user
-  moves_hash = create_clear_board #rename moves_hash to something cleaner?
+  moves_hash = create_clear_board # rename moves_hash to something cleaner?
 
   loop do
     loop do
       display_board(moves_hash)
       prompt_with_newline(format(MESSAGES[LANGUAGE][:available_moves],
-                          joinor(array_of_available_choices(moves_hash),
-                          ', ', 'and')))
+                                 joinor(array_of_available_choices(moves_hash),
+                                        ', ', 'and')))
 
       player_choice = gets.chomp
       if MESSAGES[LANGUAGE][:key] == player_choice
         display_board(board_with_possible_moves(moves_hash))
         prompt_with_newline(format(MESSAGES[LANGUAGE][:available_moves],
-        joinor(array_of_available_choices(moves_hash),
-        ', ', 'and')))
+                                   joinor(array_of_available_choices(
+                                            moves_hash
+                                   ), ', ', 'and')))
         player_choice = gets.chomp
       end
 
