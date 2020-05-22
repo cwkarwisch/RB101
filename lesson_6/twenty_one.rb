@@ -325,6 +325,10 @@ def join_two_words(cards, separating_word)
   "#{cards[0][:name]} #{separating_word} #{cards[1][:name]}"
 end
 
+def display_goodbye
+  prompt_with_newline(MESSAGES[LANGUAGE][:goodbye])
+end
+
 score = {
   "player" => 0,
   "dealer" => 0
@@ -390,4 +394,4 @@ loop do
   next if again
 end
 
-prompt_with_newline(MESSAGES[LANGUAGE][:goodbye])
+display_goodbye
