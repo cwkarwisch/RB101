@@ -62,6 +62,13 @@ puts fibonacci(200)
 
 =begin
 
+We use two accumulators to keep track of the last two numbers in the sequence
+We start by supplying the base case of the first two numbers
+As n grows, we iterate from n down to 2, going down one level of recursion each time
+On each step down into the recursive call, we update acc1 and acc2 to the next 2 numbers in the sequence
+We stop when we reach n of 2 in the recursive call, where we return acc2, which will be the nth digit
+  in the sequence
+
 fibonacci_tail(4, 1, 1)
   on line 7, we call fibonacci_tail(3, 1, 2)
     within the first level of recursion, on line 7 we call fibonacci_tail(2, 2, 3)
