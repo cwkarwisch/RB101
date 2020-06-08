@@ -1,0 +1,3 @@
+Four score and seven {NOUN} ago our {NOUN} {VERB} forth
+on this continent a new {NOUN}, conceived in liberty, and
+{ADV} dedicated to the proposition that all men are {ADJ}.
